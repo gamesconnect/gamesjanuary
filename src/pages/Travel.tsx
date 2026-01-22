@@ -66,7 +66,7 @@ export default function TravelPage() {
     return (
         <div className="bg-cream min-h-screen">
             {/* Hero */}
-            <section className="pt-32 pb-16 bg-cream">
+            <section className="pt-36 lg:pt-44 pb-16 bg-cream">
                 <div className="container mx-auto px-6 md:px-12">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}

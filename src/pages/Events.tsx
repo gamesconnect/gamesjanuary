@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Search, ArrowRight, Loader2, Clock } from 'lucide-react';
+import { Calendar, MapPin, Search, ArrowRight, Loader2, Clock, Sparkles } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 
 const categories = [
@@ -11,6 +11,14 @@ const categories = [
     { value: 'travel', label: 'Travel' },
     { value: 'party', label: 'Parties' },
 ];
+
+const categoryColors: Record<string, string> = {
+    'game-day': 'from-purple to-pink',
+    'party': 'from-pink to-orange',
+    'trivia': 'from-blue to-cyan',
+    'travel': 'from-cyan to-teal',
+    'other': 'from-purple to-blue',
+};
 
 export default function Events() {
     const { events, loading } = useEvents();
@@ -52,62 +60,70 @@ export default function Events() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-cream">
-                <Loader2 className="w-8 h-8 text-forest animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 text-purple animate-spin" />
+                    <span className="text-gray-400">Loading events...</span>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-cream min-h-screen">
+        <div className="bg-bg-primary min-h-screen">
             {/* Hero */}
-            <section className="pt-32 pb-16 bg-cream">
-                <div className="container mx-auto px-6 md:px-12">
+            <section className="pt-32 lg:pt-40 pb-16 bg-bg-primary relative overflow-hidden">
+                {/* Background Decoration */}
+                <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-purple/10 rounded-full blur-[150px] pointer-events-none" />
+
+                <div className="container mx-auto relative">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
                         className="max-w-3xl"
                     >
-                        <div className="divider-text mb-6">
-                            <span>Experiences</span>
-                        </div>
-                        <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-medium text-forest mb-6 leading-[1.05]">
-                            Upcoming
+                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-light to-pink-light uppercase tracking-wider mb-4">
+                            <Sparkles size={14} className="text-purple-light" />
+                            Experiences
+                        </span>
+                        <h1 className="heading-xl text-white mb-6">
+                            Find your perfect
                             <br />
-                            Events
+                            <span className="text-gradient">experience</span>
                         </h1>
-                        <p className="text-xl text-forest/60 max-w-xl leading-relaxed">
-                            From game days to travel adventures, find your next unforgettable experience with Games & Connect.
+                        <p className="text-lg text-gray-400 max-w-xl leading-relaxed">
+                            From game days to travel adventures, discover your next unforgettable experience with Games & Connect.
                         </p>
                     </motion.div>
                 </div>
             </section>
 
             {/* Filters */}
-            <section className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-y border-forest/5 py-5">
-                <div className="container mx-auto px-6 md:px-12">
-                    <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <section className="sticky top-20 lg:top-24 z-40 bg-bg-secondary/95 backdrop-blur-xl border-y border-white/5 py-5">
+                <div className="container mx-auto">
+                    <div className="flex flex-col lg:flex-row gap-5 items-center justify-between">
                         {/* Search */}
-                        <div className="relative w-full lg:w-96">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-forest/40" size={18} />
+                        <div className="relative w-full lg:w-80">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search events..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-14 pr-5 py-3.5 bg-cream border border-forest/10 rounded-xl text-forest placeholder-forest/40 focus:outline-none focus:border-forest transition-all"
+                                className="w-full pl-12 pr-4 py-3 bg-bg-tertiary border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple transition-all"
                             />
                         </div>
 
-                        {/* Category Filter */}
-                        <div className="flex flex-wrap gap-3 justify-center">
+                        {/* Category Pills */}
+                        <div className="flex flex-wrap gap-2 justify-center">
                             {categories.map((cat) => (
                                 <button
                                     key={cat.value}
                                     onClick={() => setFilter(cat.value)}
-                                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${filter === cat.value
-                                        ? 'bg-forest text-white'
-                                        : 'bg-cream text-forest/70 hover:bg-forest/5'
+                                    className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${filter === cat.value
+                                        ? 'bg-gradient-to-r from-purple to-pink text-white'
+                                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {cat.label}
@@ -115,18 +131,18 @@ export default function Events() {
                             ))}
                         </div>
 
-                        {/* Past/Upcoming Toggle */}
-                        <div className="flex items-center gap-1.5 bg-cream rounded-xl p-1.5">
+                        {/* Toggle */}
+                        <div className="flex items-center gap-1 bg-bg-tertiary rounded-xl p-1 border border-white/10">
                             <button
                                 onClick={() => setShowPast(false)}
-                                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${!showPast ? 'bg-white text-forest shadow-sm' : 'text-forest/50'
+                                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!showPast ? 'bg-gradient-to-r from-purple to-pink text-white' : 'text-gray-500'
                                     }`}
                             >
                                 Upcoming
                             </button>
                             <button
                                 onClick={() => setShowPast(true)}
-                                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${showPast ? 'bg-white text-forest shadow-sm' : 'text-forest/50'
+                                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${showPast ? 'bg-gradient-to-r from-purple to-pink text-white' : 'text-gray-500'
                                     }`}
                             >
                                 Past
@@ -137,19 +153,19 @@ export default function Events() {
             </section>
 
             {/* Events Grid */}
-            <section className="py-20">
-                <div className="container mx-auto px-6 md:px-12">
+            <section className="section">
+                <div className="container mx-auto">
                     {filteredEvents.length > 0 ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                             {filteredEvents.map((event, index) => (
                                 <motion.div
                                     key={event.id}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
+                                    transition={{ duration: 0.5, delay: index * 0.05 }}
                                 >
                                     <Link to={`/events/${event.id}`} className="group block">
-                                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-forest/5">
+                                        <div className="bg-bg-secondary rounded-2xl overflow-hidden transition-all duration-500 border border-white/5 hover:border-purple/30 hover:shadow-xl hover:shadow-purple/10">
                                             {/* Image */}
                                             <div className="relative aspect-[4/3] overflow-hidden">
                                                 <img
@@ -157,53 +173,63 @@ export default function Events() {
                                                     alt={event.title}
                                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                 />
-                                                <div className="absolute top-5 left-5">
-                                                    <span className="px-4 py-2 bg-white/95 backdrop-blur-sm text-forest text-xs font-medium rounded-full capitalize">
+                                                {/* Gradient Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent" />
+
+                                                {/* Category Badge */}
+                                                <div className="absolute top-4 left-4">
+                                                    <span className={`px-4 py-2 bg-gradient-to-r ${categoryColors[event.category] || 'from-purple to-blue'} text-white text-xs font-semibold rounded-full shadow-lg capitalize`}>
                                                         {event.category.replace('-', ' ')}
                                                     </span>
                                                 </div>
+                                                {/* Featured Badge */}
                                                 {event.is_featured && (
-                                                    <div className="absolute top-5 right-5">
-                                                        <span className="px-4 py-2 bg-forest text-white text-xs font-medium rounded-full">
+                                                    <div className="absolute top-4 right-4">
+                                                        <span className="px-3 py-1.5 bg-gradient-to-r from-yellow to-orange text-white text-xs font-semibold rounded-full">
                                                             Featured
                                                         </span>
                                                     </div>
                                                 )}
+                                                {/* Price Badge */}
+                                                <div className="absolute bottom-4 right-4">
+                                                    <span className="px-4 py-2 bg-white/10 backdrop-blur-md text-white text-sm font-bold rounded-xl border border-white/20">
+                                                        {event.price !== null && event.price > 0
+                                                            ? `GH₵${event.early_bird_price || event.price}`
+                                                            : 'Free'}
+                                                    </span>
+                                                </div>
                                             </div>
 
                                             {/* Content */}
-                                            <div className="p-7">
-                                                <h3 className="font-heading text-xl font-medium text-forest mb-4 group-hover:text-forest-light transition-colors">
+                                            <div className="p-6">
+                                                <h3 className="font-heading text-xl font-semibold text-white mb-4 group-hover:text-purple-light transition-colors line-clamp-2">
                                                     {event.title}
                                                 </h3>
 
-                                                <div className="flex flex-wrap gap-5 text-forest/60 text-sm mb-5">
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar size={15} />
-                                                        <span>{formatDate(event.date)}</span>
+                                                {/* Meta */}
+                                                <div className="space-y-2 mb-5">
+                                                    <div className="flex items-center gap-4 text-gray-400 text-sm">
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar size={14} className="text-purple-light" />
+                                                            <span>{formatDate(event.date)}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock size={14} className="text-pink-light" />
+                                                            <span>{formatTime(event.date)}</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Clock size={15} />
-                                                        <span>{formatTime(event.date)}</span>
+                                                    <div className="flex items-center gap-2 text-gray-400 text-sm">
+                                                        <MapPin size={14} className="text-cyan" />
+                                                        <span className="truncate">{event.location}</span>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-forest/60 text-sm mb-6">
-                                                    <MapPin size={15} />
-                                                    <span>{event.location}</span>
-                                                </div>
-
-                                                <div className="flex items-center justify-between pt-5 border-t border-forest/5">
-                                                    <div>
-                                                        {event.price !== null && event.price > 0 ? (
-                                                            <span className="text-xl font-heading font-semibold text-forest">
-                                                                GH₵{event.early_bird_price || event.price}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-xl font-heading font-semibold text-forest">Free</span>
-                                                        )}
-                                                    </div>
-                                                    <div className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center group-hover:bg-forest group-hover:border-forest group-hover:text-white text-forest transition-all">
+                                                {/* CTA */}
+                                                <div className="flex items-center justify-between pt-5 border-t border-white/5">
+                                                    <span className="text-sm font-medium text-gray-500">
+                                                        View Details
+                                                    </span>
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple to-pink flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                                                         <ArrowRight size={16} />
                                                     </div>
                                                 </div>
@@ -214,11 +240,23 @@ export default function Events() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-24 bg-white rounded-2xl border border-forest/10">
-                            <Search className="w-12 h-12 text-forest/20 mx-auto mb-4" />
-                            <h3 className="font-heading text-xl font-medium text-forest mb-2">No events found</h3>
-                            <p className="text-forest/60">Try adjusting your filters or search terms.</p>
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center py-20 bg-bg-secondary rounded-2xl border border-white/5"
+                        >
+                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-5">
+                                <Search className="w-6 h-6 text-gray-500" />
+                            </div>
+                            <h3 className="font-heading text-xl font-semibold text-white mb-2">No events found</h3>
+                            <p className="text-gray-400 mb-6">Try adjusting your filters or search terms.</p>
+                            <button
+                                onClick={() => { setFilter('all'); setSearch(''); }}
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple to-pink text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple/30 transition-all"
+                            >
+                                Reset Filters
+                            </button>
+                        </motion.div>
                     )}
                 </div>
             </section>

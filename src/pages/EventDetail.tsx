@@ -57,6 +57,41 @@ export default function EventDetail() {
     // For simplicity in this merged form, we can just use one phone number for both contact and payment
     // or allow a separate payment number check. Let's keep it simple: one phone number.
 
+    // Poll for payment status as fallback (in case Realtime doesn't work)
+    useEffect(() => {
+        if (!registrationId || status !== 'pending_confirmation' || !isSupabaseConfigured) return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('payment_status')
+                    .eq('id', registrationId)
+                    .single();
+
+                if (error) {
+                    console.error('Error polling payment status:', error);
+                    return;
+                }
+
+                console.log('Polled payment status:', data?.payment_status);
+
+                if (data?.payment_status === 'completed') {
+                    setStatus('success');
+                } else if (data?.payment_status === 'failed') {
+                    setStatus('failed');
+                    setError('Payment failed. You can try again.');
+                }
+            } catch (err) {
+                console.error('Polling error:', err);
+            }
+        }, 5000); // Poll every 5 seconds
+
+        return () => {
+            clearInterval(pollInterval);
+        };
+    }, [registrationId, status]);
+
     // Subscribe to payment status changes via Supabase Realtime
     useEffect(() => {
         if (!registrationId || status !== 'pending_confirmation' || !isSupabaseConfigured) return;
@@ -156,7 +191,6 @@ export default function EventDetail() {
             setStatus('initiating_payment');
 
             const effectivePrice = getEffectivePrice(event.price, event.early_bird_price);
-            const paymentRef = generatePaymentReference();
             const narration = `Ticket: ${event.title} - ${formData.fullName}`;
 
             const result = await initiatePayment(
@@ -167,6 +201,11 @@ export default function EventDetail() {
             );
 
             if (result.success) {
+                // Use the transactionId from the gateway (what they'll send in the callback)
+                // Fall back to a generated reference if gateway doesn't return one
+                const paymentRef = result.transactionId || generatePaymentReference();
+                console.log('Payment initiated, reference:', paymentRef);
+
                 await updateRegistrationPaymentStatus(registration.id, 'pending', paymentRef);
                 setStatus('pending_confirmation');
             } else {

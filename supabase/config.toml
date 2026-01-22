@@ -396,7 +396,7 @@ entrypoint = "./functions/process-payment/index.ts"
 
 [functions.payment-webhook]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/payment-webhook/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
